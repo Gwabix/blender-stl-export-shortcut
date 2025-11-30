@@ -37,3 +37,5 @@ Les contributions sont les bienvenues ! N'hésitez pas à ouvrir une issue ou un
 ## 💬 Support
 
 Si vous rencontrez un problème, ouvrez une [issue](https://github.com/Gwabix/blender-stl-export-shortcut/issues).
+
+– Réalisé à l'aide de Claude Sonnet 4.5 –
