@@ -7,7 +7,8 @@ Addon Blender pour exporter rapidement la sélection en STL avec un raccourci cl
 - Raccourci clavier **Ctrl + Shift + E** pour ouvrir l'export STL
 - "Sélection uniquement" activé automatiquement
 - Nom de fichier suggéré basé sur l'objet sélectionné
-- Compatible Blender 5.0+
+- Logique intelligente pour les sélections multiples : l'objet avec le plus de vertices est utilisé pour le nom
+- Compatible Blender 4.5+
 
 ## 🚀 Utilisation
 
@@ -16,6 +17,11 @@ Addon Blender pour exporter rapidement la sélection en STL avec un raccourci cl
 3. La fenêtre d'export STL s'ouvre avec "Sélection uniquement" activé
 4. Validez ou modifiez le nom et exportez
 
+### Convention de nommage
+
+- **Un seul objet** : `[nom du fichier] - [nom de l'objet]` (ou juste `[nom de l'objet]` si non sauvegardé)
+- **Plusieurs objets** : Le nom est basé sur l'objet ayant le plus de vertices
+
 ## ⚙️ Configuration
 
 Le raccourci clavier peut être modifié dans :
@@ -23,8 +29,14 @@ Le raccourci clavier peut être modifié dans :
 
 ## 📋 Prérequis
 
-- Blender 5.0 ou supérieur
+- Blender 4.5 ou supérieur (LTS)
 - Pas de dépendances externes
+
+## 📝 Dernière mise à jour
+
+**Commit** : "Enhance STL export operator with vertex count logic"
+- Ajout de la fonctionnalité de détection de l'objet principal basée sur le nombre de vertices
+- Mise à jour de la convention de nommage pour les fichiers exportés
 
 ## 📜 Licence
 
