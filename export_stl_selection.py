@@ -1,7 +1,7 @@
 bl_info = {
     "name": "Export Selection to STL Shortcut",
     "author": "Votre nom",
-    "version": (1, 1),
+    "version": (1, 2),
     "blender": (2, 80, 0),
     "location": "File > Export > STL (or shortcut)",
     "description": "Export selected objects to STL with keyboard shortcut",
@@ -17,23 +17,63 @@ class EXPORT_OT_stl_shortcut(bpy.types.Operator):
     bl_label = "Export Selection to STL"
     bl_options = {'REGISTER'}
 
+    def get_vertex_count(self, obj):
+        """Retourne le nombre de vertices d'un objet mesh"""
+        if obj.type == 'MESH':
+            # Utiliser evaluated pour obtenir le mesh après modificateurs
+            depsgraph = bpy.context.evaluated_depsgraph_get()
+            obj_eval = obj.evaluated_get(depsgraph)
+            return len(obj_eval.data.vertices)
+        return 0
+
+    def get_main_object(self, objects):
+        """Trouve l'objet avec le plus de vertices"""
+        max_vertices = 0
+        main_obj = objects[0]
+        
+        for obj in objects:
+            vertex_count = self.get_vertex_count(obj)
+            if vertex_count > max_vertices:
+                max_vertices = vertex_count
+                main_obj = obj
+        
+        return main_obj
+
     def execute(self, context):
         # Vérifier qu'il y a une sélection
         if not context.selected_objects:
             self.report({'WARNING'}, "No objects selected")
             return {'CANCELLED'}
         
-        # Définir le nom par défaut
-        default_name = "export"
-        
-        # Si un seul objet sélectionné, utiliser son nom
+        # Définir le nom par défaut selon le nombre d'objets sélectionnés
         if len(context.selected_objects) == 1:
-            default_name = bpy.path.clean_name(context.selected_objects[0].name)
-        # Si plusieurs objets ET fichier .blend sauvegardé, utiliser le nom du fichier
-        elif len(context.selected_objects) > 1 and bpy.data.filepath:
-            blend_filename = bpy.path.basename(bpy.data.filepath)
-            # Retirer l'extension .blend
-            default_name = os.path.splitext(blend_filename)[0]
+            # Un seul objet sélectionné
+            obj_name = bpy.path.clean_name(context.selected_objects[0].name)
+            
+            # Si fichier sauvegardé : [nom fichier] - [nom objet]
+            # Sinon : [nom objet]
+            if bpy.data.filepath:
+                blend_filename = os.path.splitext(bpy.path.basename(bpy.data.filepath))[0]
+                default_name = f"{blend_filename} - {obj_name}"
+            else:
+                default_name = obj_name
+        else:
+            # Plusieurs objets : trouver celui avec le plus de vertices
+            main_obj = self.get_main_object(context.selected_objects)
+            obj_name = bpy.path.clean_name(main_obj.name)
+            
+            # Si fichier sauvegardé : [nom fichier] - [nom objet principal]
+            # Sinon : [nom objet principal]
+            if bpy.data.filepath:
+                blend_filename = os.path.splitext(bpy.path.basename(bpy.data.filepath))[0]
+                default_name = f"{blend_filename} - {obj_name}"
+            else:
+                default_name = obj_name
+            
+            # Afficher une info sur l'objet principal choisi
+            vertex_count = self.get_vertex_count(main_obj)
+            self.report({'INFO'}, 
+                f"Main object: '{main_obj.name}' ({vertex_count} vertices)")
         
         # Définir le chemin par défaut
         if bpy.data.filepath:
