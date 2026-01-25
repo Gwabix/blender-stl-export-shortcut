@@ -1,8 +1,8 @@
 bl_info = {
     "name": "Export Selection to STL Shortcut",
-    "author": "Votre nom",
+    "author": "Gwabix",
     "version": (1, 2),
-    "blender": (2, 80, 0),
+    "blender": (4, 50, 0),
     "location": "File > Export > STL (or shortcut)",
     "description": "Export selected objects to STL with keyboard shortcut",
     "category": "Import-Export",
@@ -122,3 +122,4 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
