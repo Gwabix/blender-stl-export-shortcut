@@ -10,6 +10,26 @@ bl_info = {
 
 import bpy
 import os
+import re
+
+def sanitize_filename(name):
+    """
+    Sanitize a filename while preserving accented characters.
+    Only removes characters that are not safe for filenames across filesystems.
+    """
+    # Remove or replace characters that are not safe for filenames
+    # Keep: letters (including accented), numbers, spaces, dashes, underscores
+    # Remove: / \ : * ? " < > |
+    unsafe_chars = r'[/\\:*?"<>|]'
+    cleaned = re.sub(unsafe_chars, '_', name)
+    
+    # Remove leading/trailing spaces and dots (some filesystems don't like them)
+    cleaned = cleaned.strip(' .')
+    
+    # Replace multiple spaces with single space
+    cleaned = re.sub(r'\s+', ' ', cleaned)
+    
+    return cleaned if cleaned else 'unnamed'
 
 class EXPORT_OT_stl_shortcut(bpy.types.Operator):
     """Export selected objects to STL"""
@@ -48,7 +68,7 @@ class EXPORT_OT_stl_shortcut(bpy.types.Operator):
         # Définir le nom par défaut selon le nombre d'objets sélectionnés
         if len(context.selected_objects) == 1:
             # Un seul objet sélectionné
-            obj_name = bpy.path.clean_name(context.selected_objects[0].name)
+            obj_name = sanitize_filename(context.selected_objects[0].name)
             
             # Si fichier sauvegardé : [nom fichier] - [nom objet]
             # Sinon : [nom objet]
@@ -60,7 +80,7 @@ class EXPORT_OT_stl_shortcut(bpy.types.Operator):
         else:
             # Plusieurs objets : trouver celui avec le plus de vertices
             main_obj = self.get_main_object(context.selected_objects)
-            obj_name = bpy.path.clean_name(main_obj.name)
+            obj_name = sanitize_filename(main_obj.name)
             
             # Si fichier sauvegardé : [nom fichier] - [nom objet principal]
             # Sinon : [nom objet principal]
