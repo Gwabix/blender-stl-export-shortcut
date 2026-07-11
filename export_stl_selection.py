@@ -1,7 +1,7 @@
 bl_info = {
     "name": "Export Selection to STL Shortcut",
     "author": "Gwabix",
-    "version": (1, 2),
+    "version": (1, 3),
     "blender": (4, 50, 0),
     "location": "File > Export > STL (or shortcut)",
     "description": "Export selected objects to STL with keyboard shortcut",
@@ -17,17 +17,11 @@ def sanitize_filename(name):
     Sanitize a filename while preserving accented characters.
     Only removes characters that are not safe for filenames across filesystems.
     """
-    # Remove or replace characters that are not safe for filenames
-    # Keep: letters (including accented), numbers, spaces, dashes, underscores
-    # Remove: / \ : * ? " < > |
     unsafe_chars = r'[/\\:*?"<>|]'
     cleaned = re.sub(unsafe_chars, '_', name)
-    
-    # Remove leading/trailing spaces and dots (some filesystems don't like them)
     cleaned = cleaned.strip(' .')
-    
-    # Replace multiple spaces with single space
     cleaned = re.sub(r'\s+', ' ', cleaned)
+    cleaned = cleaned.strip(' ._-')
     
     return cleaned if cleaned else 'unnamed'
 
@@ -85,7 +79,7 @@ class EXPORT_OT_stl_shortcut(bpy.types.Operator):
             # Si fichier sauvegardé : [nom fichier] - [nom objet principal]
             # Sinon : [nom objet principal]
             if bpy.data.filepath:
-                blend_filename = os.path.splitext(bpy.path.basename(bpy.data.filepath))[0]
+                blend_filename = sanitize_filename(os.path.splitext(bpy.path.basename(bpy.data.filepath))[0])
                 default_name = f"{blend_filename} - {obj_name}"
             else:
                 default_name = obj_name
@@ -142,4 +136,3 @@ def unregister():
 
 if __name__ == "__main__":
     register()
-
